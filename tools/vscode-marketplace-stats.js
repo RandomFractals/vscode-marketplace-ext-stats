@@ -1,19 +1,35 @@
 const https = require('https');
 
 // extension to get stats for
-const extensionName = 'RandomFractalsInc.vscode-data-preview';
+let extensionName = 'RandomFractalsInc.vscode-data-preview';
 
 // stats time interval
-const timeInterval = 1000 * 60 * 10; // ever 10 mins
+let timeInterval = 1000 * 60 * 10; // every 10 mins
 
-// print stats CSV header
-console.log('DateTime, Installs, Downloads, Version');
+// get command line arguments
+const args = process.argv.slice(2); // skip node & script args
+if (args.length > 0) {
+  // get extension name
+  extensionName = args[0].trim();
 
-// get initial stats
-getStats();
+  // print stats CSV header
+  console.log('DateTime, Installs, Downloads, Version');
 
-// schedule repeated stats calls
-const timeOut = setInterval(getStats, timeInterval);
+  // get initial stats
+  getStats();
+
+  // schedule repeated stats calls
+  const timeOut = setInterval(getStats, timeInterval);
+} else {
+  // print command info
+  console.log(`
+    Please specify extension name. vscode-marketplace-stats command example:\n
+
+    $ node vscode-marketplace-stats eamodio.gitlens\n
+    
+    Gets vscode marketplace stats for GitLens extension :)`);
+}
+
 
 /**
  * Gets configured extension stats and prints 
