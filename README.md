@@ -74,6 +74,14 @@ DateTime, Installs, Downloads, Version
 2019-07-18T14:30:00, 5687, 28150, v1.26.0
 ...
 ```
+
+# Data Preview Plot Example
+
+You can use my [Data Preview 🈸](https://github.com/RandomFractals/vscode-data-preview) extension to plot this CSV data :)
+
+![Data Preview](https://github.com/RandomFractals/vscode-marketplace-ext-stats/blob/master/images/vscode-data-preview-stats-plot.png?raw=true 
+"Data Preview")
+
 ## VSMarketplace Badges
 
 If you are looking for vscode marketplace stats badges, they are here: 
