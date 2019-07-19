@@ -76,4 +76,8 @@ DateTime, Installs, Downloads, Version
 2019-07-18T14:30:00, 5687, 28150, v1.26.0
 ...
 ```
+## VSMarketplace Badges
 
+If you are looking for vscode marketplace stats badges, they are here: 
+
+https://github.com/cssho/VSMarketplaceBadge
