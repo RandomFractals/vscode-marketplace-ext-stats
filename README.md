@@ -17,8 +17,11 @@ $ cd vscode-marketplace-ext-stats
 $ cd tools
 $ node vscode-marketplace-stats <extensionName>
 ```
+where `extensionName` is the Unique Identifier from [VSCode Marketplace Store](https://marketplace.visualstudio.com/vscode), i.e. `itemName` param from vscode marketplace url :)
 
-For example, to see install and download stats for GitLens, run:
+## Example
+
+To see Installs and Downloads stats for GitLens, run:
 
 ```bash
 tools>node vscode-marketplace-stats eamodio.gitlens
