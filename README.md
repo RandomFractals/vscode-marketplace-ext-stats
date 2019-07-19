@@ -1,6 +1,8 @@
 # vscode-marketplace-ext-stats
 
-Port of https://github.com/RandomFractals/vscode-data-preview/issues/111 for other vscode ext. devs to use
+[VSCode Marketplace](https://marketplace.visualstudio.com/vscode) Extension Stats tool for devs to get periodic Installs & Downloads counts since Microsoft doesn't have a proper store dashboard for extension authors.
+
+Port of https://github.com/RandomFractals/vscode-data-preview/issues/111 for other vscode ext. devs to use.
 
 # Install
 
