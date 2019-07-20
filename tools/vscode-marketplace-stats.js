@@ -33,53 +33,32 @@ if (args.length > 0) {
 
 
 /**
- * Gets configured extension stats and prints 
+ * Gets vscode marketplace extension stats and prints 
  * DateTime, Installs, Downloads, Version
  * CSV to console for copy over to hourly/daily stats
  * data files for vscode extension metrics and analytics.
  */
 function getStats() {
-  // create ext stats request body
-  const requestBody = JSON.stringify({
-    filters: [{
-      criteria: [{
-        filterType: 7,
-        value: extensionName
-      }, {
-        filterType : 12,
-        value: '4096'
-      }]
-    }],
-    flags: 914
-  }, null, 2);
-  // console.log('request:', requestBody);
+  // create extension stats post request body
+  const requestBodyString = createStatsRequestBody(extensionName);
 
   // create post request options
-  const requestOptions = {
-    protocol: 'https:',
-    host: 'marketplace.visualstudio.com',
-    port: 443,
-    path: '/_apis/public/gallery/extensionquery',
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json;api-version=3.0-preview.1',
-      'Content-Type' : 'application/json',
-      'Content-Length' : Buffer.byteLength(requestBody, 'utf8')
-    }
-  };
+  const requestOptions = createStatsRequestOptions(requestBodyString);
 
-  // create ext. stats data post request
+  // create extension stats post request
   const postRequest = https.request(requestOptions, (response) => {
+    // set response encoding for reading JSON response data
     response.setEncoding('utf8');
     // console.log('statusCode:', response.statusCode);
     // console.log('headers:', response.headers);
+
     // get response data
     let responseText = '';
     response.on('data', (chunk) => {
       responseText += chunk;
     });
   
-    // process data stats
+    // process extension data response and stats
     response.on('end', () => {
       const responseData = JSON.parse(responseText);
       // console.log('response:', JSON.stringify(responseData, null, 2));
@@ -100,20 +79,74 @@ function getStats() {
         // console.log('stats:', JSON.stringify(stats, null, 2));
 
         // log periodic stats in CSV format: DateTime, Installs, Downloads, Version
-        const timeString = getLocalDateTimeISOString(new Date());
-        console.log(`${timeString}, ${stats.install}, ${stats.install + stats.updateCount}, v${extensionVersion}`);
+        logStats(stats, extensionVersion);
       }
     });
   });
   
-  // write post request data body and send
-  postRequest.write(requestBody);
+  // write post request body and send stats request
+  postRequest.write(requestBodyString);
   postRequest.end();
   postRequest.on("error", (err) => {
     console.log("Error: " + err.message);
   });
 
 } // end of getStats()
+
+/**
+ * Creates vscode marketplace extension stats post request body string.
+ * @param extensionName Extension name to create stats request for.
+ */
+function createStatsRequestBody(extensionName) {
+  // create ext stats post request body
+  const requestBodyString = JSON.stringify({
+    filters: [{
+      criteria: [{
+        filterType: 7,
+        value: extensionName
+      }, {
+        filterType : 12,
+        value: '4096'
+      }]
+    }],
+    flags: 914
+  }, null, 2);
+  // console.log('request:', requestBodyString);
+  return requestBodyString;
+}
+
+/**
+ * Creates vscode marketplace post request options.
+ * @param requestBodyString Post request body string.
+ */
+function createStatsRequestOptions(requestBodyString) {
+  // create post request options
+  const requestOptions = {
+    protocol: 'https:',
+    host: 'marketplace.visualstudio.com',
+    port: 443,
+    path: '/_apis/public/gallery/extensionquery',
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json;api-version=3.0-preview.1',
+      'Content-Type' : 'application/json',
+      'Content-Length' : Buffer.byteLength(requestBodyString, 'utf8')
+    }
+  };
+  return requestOptions;
+}
+
+/**
+ * Logs extention stats to console.
+ * @param stats Stats object with install and updateCount properties.
+ * @param extensionVersion Extension version string.
+ */
+function logStats(stats, extensionVersion) {
+  // create local dateTime ISO string
+  const timeString = getLocalDateTimeISOString(new Date());
+  // log periodic stats in CSV format: DateTime, Installs, Downloads, Version
+  console.log(`${timeString}, ${stats.install}, ${stats.install + stats.updateCount}, v${extensionVersion}`);
+}
 
 /**
  * Converts a Date to local date and time ISO string.
