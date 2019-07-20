@@ -1,8 +1,13 @@
 # vscode-marketplace-ext-stats
 
-[VSCode Marketplace](https://marketplace.visualstudio.com/vscode) Extension Stats tool for devs to get periodic Installs & Downloads counts since Microsoft doesn't have a proper store dashboard for extension authors.
+[VSCode Marketplace](https://marketplace.visualstudio.com/vscode) **Extension Stats** tool anyone with 
+[nodejs](https://nodejs.org/en/download/) installed can run 🏃
+to get periodic Installs & Downloads counts for Visual Studio family of products extensions.
 
-Port of https://github.com/RandomFractals/vscode-data-preview/issues/111 for other vscode ext. devs to use.
+I created this simple script tool to capture vscode extension satatistics for 
+[DataPreview 🈸](https://marketplace.visualstudio.com/items?itemName=RandomFractalsInc.vscode-data-preview) and help me evaluate and analyze extension performance and foot 👣 traffic in Visual Studio marketplace store since Microsoft doesn't provide a proper dashboard for extension authors yet :)
+
+**Note:** You can use it for any of your own VS extensions || see how popular other extensions are in VS marketplace store.
 
 # Install
 
@@ -19,19 +24,25 @@ $ cd vscode-marketplace-ext-stats
 $ cd tools
 $ node vscode-marketplace-stats <extensionName>
 ```
-where `extensionName` is the Unique Identifier from [VSCode Marketplace Store](https://marketplace.visualstudio.com/vscode), i.e. `itemName` param from vscode marketplace url :)
+where `<extensionName>` is the Unique Identifier from [Visual Studio Marketplace Store](https://marketplace.visualstudio.com/vscode), i.e. `itemName` param from VS marketplace url :)
 
-## Example
+## Examples
 
-To see Installs and Downloads stats for GitLens, run:
+Get [GitLens VSCode etension](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens) stats:
 
 ```bash
 tools>node vscode-marketplace-stats eamodio.gitlens
 ```
+Get [Live Share Visual Studio extension](https://marketplace.visualstudio.com/items?itemName=MS-vsliveshare.vsls-vs) stats:
+
+```bash
+tools>node vscode-marketplace-stats MS-vsliveshare.vsls-vs
+```
+
 
 # Sample Output
 
-from our [DataPreview 🈸 vscode ext.](https://github.com/RandomFractals/vscode-data-preview) marketplace stats run today :)
+from our [DataPreview 🈸 vscode ext.](https://github.com/RandomFractals/vscode-data-preview) marketplace stats run:
 
 ```csv
 DateTime, Installs, Downloads, Version
