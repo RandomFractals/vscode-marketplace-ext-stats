@@ -29,7 +29,7 @@ if (args.length > 0) {
   statsFilePath = createStatsFile(statsFolderPath, extensionName);
 
   // print stats CSV header to console
-  console.log('DateTime, Installs, Downloads, Version');
+  console.log('DateTime, Installs, Updates, Downloads, Version');
 
   // get initial stats
   getStats();
@@ -189,7 +189,7 @@ function logStats(stats, extensionVersion) {
   const timeString = getLocalDateTimeISOString(new Date());
   // create stats line entry in CSV format: DateTime, Installs, Downloads, Version
   const statsLine = 
-    `${timeString}, ${stats.install}, ${stats.install + stats.updateCount}, v${extensionVersion}`;
+    `${timeString}, ${stats.install}, ${stats.updateCount}, ${stats.downloadCount}, v${extensionVersion}`;
   // log to console :)
   console.log(statsLine);
   // return for append to stats file too
