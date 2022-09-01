@@ -2,9 +2,6 @@ const fs = require('fs');
 const https = require('https');
 const path = require('path');
 
-// extension to get stats for
-let extensionName = 'RandomFractalsInc.vscode-data-preview';
-
 // stats time interval
 let timeInterval = 1000 * 60 * 60; // every hour
 
@@ -21,9 +18,22 @@ if (!fs.existsSync(statsFolderPath)) {
 
 // get command line arguments
 const args = process.argv.slice(2); // skip node & script args
+
+let loopsRequested = -1;
+let loopCount = 0;
+let intervalID;
+{
+  const matches = args[0].trim().match(/^-l=(\d)$/);
+  if (matches) {
+    loopsRequested = parseInt(matches[1]);
+    if (loopsRequested === 0) loopsRequested = 1;
+    args.shift();
+  }
+}
+
 if (args.length > 0) {
   // get extension name
-  extensionName = args[0].trim();
+  const extensionName = args[0].trim();
 
   // create stats file
   statsFilePath = createStatsFile(statsFolderPath, extensionName);
@@ -32,11 +42,12 @@ if (args.length > 0) {
   console.log('DateTime, Installs, Updates, Downloads, Version');
 
   // get initial stats
-  getStats();
+  getStats(extensionName);
 
   // schedule repeated stats calls
-  const timeOut = setInterval(getStats, timeInterval);
-
+  if (loopsRequested !== 1) {
+    intervalID = setInterval(getStats, timeInterval, extensionName);
+  }
 } else {
   // print command info
   console.log(`
@@ -77,8 +88,14 @@ function createStatsFile(statsFolderPath, extensionName) {
  * DateTime, Installs, Downloads, Version
  * CSV to console for copy over to hourly/daily stats
  * data files for vscode extension metrics and analytics.
+ * @param extensionName Extension name to get stats for.
  */
-function getStats() {
+function getStats(extensionName) {
+  loopCount++;
+  if (loopsRequested > 1 && loopCount >= loopsRequested) {
+    clearInterval(intervalID);
+  }
+
   // create extension stats post request body
   const requestBodyString = createStatsRequestBody(extensionName);
 
