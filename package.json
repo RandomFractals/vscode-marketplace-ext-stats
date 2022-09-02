@@ -1,0 +1,21 @@
+{
+  "name": "vscode-marketplace-ext-stats",
+  "version": "1.0.0",
+  "description": "[VSCode Marketplace](https://marketplace.visualstudio.com/vscode) **Extension Stats** tool anyone with  [nodejs](https://nodejs.org/en/download/) installed can run 🏃 to get periodic Installs & Downloads counts for Visual Studio family of products extensions.",
+  "type": "module",
+  "main": "tools/vscode-marketplace-stats.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RandomFractals/vscode-marketplace-ext-stats.git"
+  },
+  "keywords": [],
+  "author": "Taras Novak, Random Fractals Inc.",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/RandomFractals/vscode-marketplace-ext-stats/issues"
+  },
+  "homepage": "https://github.com/RandomFractals/vscode-marketplace-ext-stats#readme"
+}
