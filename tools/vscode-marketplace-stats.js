@@ -1,6 +1,36 @@
-const fs = require('fs');
-const https = require('https');
-const path = require('path');
+import fs from 'fs';
+import https from 'https';
+import path from 'path';
+import readline from 'readline';
+
+const availableStats = {
+  'install': 'Installs',
+  'averagerating': 'Rating (average)',
+  'ratingcount': 'Rating count',
+  'trendingdaily': 'Trending (daily)',
+  'trendingmonthly': 'Trending (monthly)',
+  'trendingweekly': 'Trending (weekly)',
+  'updateCount': 'Updates',
+  'weightedRating': 'Rating (weighted)',
+  'downloadCount': 'Downloads'
+};
+
+const requestedStats = [
+  'install',
+  'updateCount',
+  'downloadCount',
+  // 'trendingweekly',
+  // 'trendingdaily'
+];
+
+const csvHeader = [
+    'DateTime'
+  ].concat(
+    requestedStats.map(s => availableStats[s]),
+    'Version'
+  ).join(', ');
+
+console.log('csvHeader:\n' + csvHeader);
 
 // extension to get stats for
 let extensionName = 'RandomFractalsInc.vscode-data-preview';
@@ -26,10 +56,10 @@ if (args.length > 0) {
   extensionName = args[0].trim();
 
   // create stats file
-  statsFilePath = createStatsFile(statsFolderPath, extensionName);
+  statsFilePath = await createStatsFile(statsFolderPath, extensionName);
 
   // print stats CSV header to console
-  console.log('DateTime, Installs, Updates, Downloads, Version');
+  console.log(csvHeader);
 
   // get initial stats
   getStats();
@@ -48,21 +78,59 @@ if (args.length > 0) {
 }
 
 /**
+ * Get first line from file.
+ * @param filePath file path.
+ */
+async function getFirstLine(filePath) {
+  const fileStream = fs.createReadStream(filePath);
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+  const lines = rl[Symbol.asyncIterator]();
+  const firstLine = (await lines.next()).value;
+  
+  // cleanup
+  rl.close();
+  fileStream.destroy();
+
+  return firstLine;
+}
+
+/**
  * Creates new CSV stats file for capturing VS extension installs and downloads stats.
  * @param statsFolderPath Stats data files folder path. Defaults to ../data.
  * @param extensionName Extension name to create stats file for.
  */
-function createStatsFile(statsFolderPath, extensionName) {
+async function createStatsFile(statsFolderPath, extensionName) {
   // create stats data file of form: <extensionName>-stats-<ISODate>.csv
   const isoDateTimeString = getLocalDateTimeISOString(new Date());
   const isoDateString = isoDateTimeString.split('T')[0]; // date part
-  const statsFileName = `${extensionName}-stats-${isoDateString}.csv`;
-  const statsFilePath = path.join(statsFolderPath, statsFileName);
-  if (!fs.existsSync(statsFilePath)) {
+  let statsFileName = `${extensionName}-stats-${isoDateString}.csv`;
+  let statsFilePath = path.join(statsFolderPath, statsFileName);
+  let createNewFile = false, stillLooking = true, suffix = 1;
+  while (stillLooking) {
+    if (fs.existsSync(statsFilePath)) {
+      const existingCsvHeader = await getFirstLine(statsFilePath);
+      console.log('\nexistingCsvHeader (' + statsFileName + '):\n' + existingCsvHeader);
+      if (existingCsvHeader !== csvHeader) {
+        statsFileName = `${extensionName}-stats-${isoDateString}_${suffix++}.csv`;
+        statsFilePath = path.join(statsFolderPath, statsFileName);
+      } else {
+        // found an existing file to write to
+        stillLooking = false;
+      }
+    } else {
+      // no existing file, create a new one
+      createNewFile = true;
+      stillLooking = false;
+    }
+  }
+  if (createNewFile) {
     try {
       // write stats CSV header to start new stats file
       const statsWriteStream = fs.createWriteStream(statsFilePath, {encoding: 'utf8'});
-      statsWriteStream.write('DateTime, Installs, Downloads, Version');
+      statsWriteStream.write(csvHeader);
       statsWriteStream.end();
     } catch (error) {
       console.error('  Unable to create stats file:', statsFilePath);
@@ -74,7 +142,7 @@ function createStatsFile(statsFolderPath, extensionName) {
 
 /**
  * Gets vscode marketplace extension stats and prints 
- * DateTime, Installs, Downloads, Version
+ * DateTime, Installs, Updates, Downloads, Version
  * CSV to console for copy over to hourly/daily stats
  * data files for vscode extension metrics and analytics.
  */
@@ -118,7 +186,7 @@ function getStats() {
         });
         // console.log('stats:', JSON.stringify(stats, null, 2));
 
-        // log periodic stats in CSV format to console: DateTime, Installs, Downloads, Version
+        // log periodic stats in CSV format to console: DateTime, Installs, Updates, Downloads, Version
         const statsCsvLine = logStats(stats, extensionVersion);
 
         // update stats data file
@@ -187,9 +255,13 @@ function createStatsRequestOptions(requestBodyString) {
 function logStats(stats, extensionVersion) {
   // create local dateTime ISO string
   const timeString = getLocalDateTimeISOString(new Date());
-  // create stats line entry in CSV format: DateTime, Installs, Downloads, Version
-  const statsLine = 
-    `${timeString}, ${stats.install}, ${stats.updateCount}, ${stats.downloadCount}, v${extensionVersion}`;
+  // create stats line entry in CSV format, default is DateTime, Installs, Updates, Downloads, Version
+  const statsLine = [
+    timeString
+  ].concat(
+    requestedStats.map(stat => stats[stat]),
+    `v${extensionVersion}`
+  ).join(', ');
   // log to console :)
   console.log(statsLine);
   // return for append to stats file too
